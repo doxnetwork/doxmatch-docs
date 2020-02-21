@@ -5,6 +5,9 @@ info:
   title: DoxMatch
   contact:
     email: contact@doxmatch.net
+  x-logo:
+    url: ./assets/logo.png
+    backgroundColor: "#ffffff"
 host: api.doxmatch.net
 basePath: /v2
 tags:
