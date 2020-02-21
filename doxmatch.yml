@@ -1,0 +1,628 @@
+swagger: "2.0"
+info:
+  description: ""
+  version: 0.2.0
+  title: DoxMatch
+  contact:
+    email: contact@doxmatch.net
+host: api.doxmatch.net
+basePath: /v2
+tags:
+  - name: server
+    description: Manage your servers
+  - name: gamemap
+    description: Manage CSGO maps
+  - name: match
+    description: Manage matches
+  - name: instance
+    description: |-
+      Manage gameserver instances
+
+      ***-- Coming soon --***
+schemes:
+  - http
+paths:
+  /servers:
+    get:
+      tags:
+        - server
+      summary: Get a list of your servers
+      description: ""
+      operationId: getServers
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        "200":
+          description: List of your servers
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Server"
+        "500":
+          description: Something gone wrong
+  /server:
+    post:
+      tags:
+        - server
+      summary: Add a new server
+      description: ""
+      operationId: addServer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: New server parameters
+          required: true
+          schema:
+            $ref: "#/definitions/Server"
+      responses:
+        "201":
+          description: Successful creation
+          schema:
+            $ref: "#/definitions/Server"
+        "422":
+          description: Missing a required parameter
+        "500":
+          description: "Something gone wrong :("
+  "/server/{id}":
+    get:
+      tags:
+        - server
+      summary: Get a specific server
+      description: ""
+      operationId: getServer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of the server you want to get
+          required: true
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Selected server
+          schema:
+            $ref: "#/definitions/Server"
+        "404":
+          description: No server was found with this id
+        "500":
+          description: Something gone wrong
+    put:
+      tags:
+        - server
+      summary: Update a server
+      description: ""
+      operationId: updateServer
+      parameters:
+        - name: id
+          in: path
+          description: ID of the server you want to update
+          required: true
+          type: integer
+          format: int64
+        - in: body
+          name: body
+          description: Server attributes you want to update
+          required: true
+          schema:
+            $ref: "#/definitions/Server"
+      responses:
+        "200":
+          description: Updated server
+          schema:
+            $ref: "#/definitions/Server"
+        "404":
+          description: No server was found with this id
+        "500":
+          description: Something gone wrong
+  /maps:
+    get:
+      tags:
+        - gamemap
+      summary: Get your game maps
+      description: ""
+      operationId: getMaps
+      parameters: []
+      responses:
+        "200":
+          description: Your game maps
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/GameMap"
+  /map:
+    post:
+      tags:
+        - gamemap
+      summary: Add a new game map
+      description: ""
+      operationId: addMap
+      parameters:
+        - in: body
+          name: body
+          description: Map parameters
+          required: true
+          schema:
+            $ref: "#/definitions/GameMap"
+      responses:
+        "200":
+          description: Your new game map
+          schema:
+            $ref: "#/definitions/GameMap"
+  "/map/{mapId}":
+    get:
+      tags:
+        - gamemap
+      summary: Get a specific map
+      description: ""
+      operationId: getMap
+      parameters:
+        - in: path
+          name: mapId
+          description: ID of the map you want to get
+          required: true
+          type: integer
+      responses:
+        "200":
+          description: Selected game map
+          schema:
+            $ref: "#/definitions/GameMap"
+        "404":
+          description: Map not found
+        "500":
+          description: Something gone wrong
+    put:
+      tags:
+        - gamemap
+      summary: Update a specific map
+      description: ""
+      operationId: updateMap
+      parameters:
+        - in: path
+          name: mapId
+          description: ID of the map you want to update
+          required: true
+          type: integer
+        - in: body
+          name: body
+          description: Map attributes you want to update
+          required: true
+          schema:
+            $ref: "#/definitions/GameMap"
+      responses:
+        "200":
+          description: Updated game map
+          schema:
+            $ref: "#/definitions/GameMap"
+        "500":
+          description: Something gone wrong
+  /matches:
+    get:
+      tags:
+        - match
+      summary: Get your matches
+      description: ""
+      operationId: getMatches
+      parameters: []
+      responses:
+        "200":
+          description: Your current matches
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Match"
+  /match:
+    post:
+      tags:
+        - match
+      summary: Create a match
+      description: ""
+      operationId: createMatch
+      parameters:
+        - in: body
+          name: body
+          description: Match parameters
+          schema:
+            type: object
+            required:
+              - team1
+              - team2
+            properties:
+              team1:
+                type: string
+                description: Team 1 name (will begin on CT side)
+                example: Alpha Team
+              team2:
+                type: string
+                description: Team 2 name (will begin on T side)
+                example: Bravo Team
+              server:
+                type: integer
+                description: ID of the game server where the match will be played
+                example: 1
+              matchCfg:
+                type: string
+                description: "Match config file, will be executed at match start"
+                example: match.cfg
+              overtimeCfg:
+                type: string
+                description: "Overtime config file, will be executed at match start **if overtime is enabled**"
+                example: overtime.cfg
+              matchMr:
+                type: integer
+                description: Number of rounds to play by side
+                example: 15
+              overtimeMr:
+                type: integer
+                description: Number of rounds to play by side **when entering on overtime phase**
+                example: 3
+              bestOf:
+                type: integer
+                description: Maximum number of maps to play on this match
+                example: 1
+              forceCut:
+                type: boolean
+                description: "Whether the Cut Round phase should be forced or not. If true, players will not be able to start Live Match before Cut Round"
+                example: true
+              map:
+                description: Map ID to play for this match
+                type: integer
+                example: 1
+      responses:
+        "200":
+          description: Selected match
+          schema:
+            $ref: "#/definitions/Match"
+  "/match/{matchId}":
+    get:
+      tags:
+        - match
+      summary: Get a specific match
+      description: ""
+      operationId: getMatch
+      parameters:
+        - in: path
+          name: matchId
+          type: integer
+          description: Match ID
+          required: true
+      responses:
+        "200":
+          description: Selected match
+          schema:
+            $ref: "#/definitions/Match"
+    put:
+      tags:
+        - match
+      summary: Update a specific match
+      description: ""
+      operationId: updateMatch
+      parameters:
+        - in: path
+          type: integer
+          name: matchId
+          description: Match ID
+          required: true
+        - in: body
+          name: body
+          description: Match parameters
+          schema:
+            type: object
+            required:
+              - team1
+              - team2
+            properties:
+              team1:
+                type: string
+                description: Team 1 name (will begin on CT side)
+                example: Alpha Team
+              team2:
+                type: string
+                description: Team 2 name (will begin on T side)
+                example: Bravo Team
+              server:
+                type: integer
+                description: ID of the game server where the match will be played
+                example: 1
+              matchCfg:
+                type: string
+                description: "Match config file, will be executed at match start"
+                example: match.cfg
+              overtimeCfg:
+                type: string
+                description: "Overtime config file, will be executed at match start **if overtime is enabled**"
+                example: overtime.cfg
+              matchMr:
+                type: integer
+                description: Number of rounds to play by side
+                example: 15
+              overtimeMr:
+                type: integer
+                description: Number of rounds to play by side **when entering on overtime phase**
+                example: 3
+              bestOf:
+                type: integer
+                description: Maximum number of maps to play on this match
+                example: 1
+              forceCut:
+                type: boolean
+                description: "Whether the Cut Round phase should be forced or not. If true, players will not be able to start Live Match before Cut Round"
+                example: true
+              map:
+                description: Map ID to play for this match
+                type: integer
+                example: 1
+      responses:
+        "200":
+          description: Selected match
+          schema:
+            $ref: "#/definitions/Match"
+  "/match/{matchId}/action":
+    post:
+      tags:
+        - match
+      summary: Send an action to a specific match
+      description: ""
+      operationId: matchAction
+      parameters:
+        - in: path
+          name: matchId
+          type: integer
+          description: Match ID
+          required: true
+        - in: body
+          name: body
+          description: Match action to send
+          schema:
+            type: object
+            required:
+              - action
+            properties:
+              action:
+                type: string
+                description: |-
+                  Action to send
+
+                  **reset** : Cancel match and put it on *Preparing...* status
+
+                  **prepare** : Prepare game server to play this match
+
+                  **force_cut** : ForceStart the match with a Cut Round
+
+                  **force_live** : ForceStart the match Live
+
+                  **stop** : Stop match and go back to Warmup
+
+                  **validate** : *Coming soon*
+
+                  **archive** : Archive this match.
+                enum:
+                  - reset
+                  - prepare
+                  - force_cut
+                  - force_live
+                  - stop
+                  - validate
+                  - archive
+      responses:
+        "200":
+          description: Action return
+securityDefinitions:
+  API Key:
+    type: apiKey
+    name: X-Api-Key
+    in: header
+definitions:
+  Server:
+    type: object
+    required:
+      - name
+      - ip
+      - port
+      - rcon
+    properties:
+      id:
+        type: integer
+        description: "Unique ID of this server, to be used on every request after creation"
+        format: int64
+        example: 1
+      name:
+        type: string
+        description: Server name
+        example: "Server #1"
+      ip:
+        type: string
+        description: CSGO server connection IP address
+        example: 1.2.3.4
+      port:
+        type: integer
+        description: CSGO server connection port
+        example: "27015"
+      rcon:
+        type: string
+        description: rcon_password value of your server. Required to send actions to your server.
+        example: MySup3rRc0nP4ssword
+  GameMap:
+    type: object
+    required:
+      - name
+    properties:
+      id:
+        type: integer
+        description: "Unique ID of this map, to be used on every request after creation"
+        format: int64
+        example: 1
+      name:
+        type: string
+        description: Map name
+        example: de_dust2
+      workshopId:
+        type: string
+        description: Map ID on Steam Workshop
+        example: "123456789"
+  Match:
+    type: object
+    required:
+      - team1
+      - team2
+    properties:
+      id:
+        type: integer
+        description: "Unique ID of this match, to be used on every request after creation"
+        format: int64
+        example: 1
+      server:
+        description: Game Server where the match is played
+        allOf:
+          - $ref: "#/definitions/Server"
+      matchCfg:
+        type: string
+        description: "Match config file, will be executed at match start"
+        example: match.cfg
+      overtimeCfg:
+        type: string
+        description: "Overtime config file, will be executed at match start **if overtime is enabled**"
+        example: overtime.cfg
+      matchMr:
+        type: integer
+        description: Number of rounds to play by side
+        example: 15
+      overtimeMr:
+        type: integer
+        description: Number of rounds to play by side **when entering on overtime phase**
+        example: 3
+      bestOf:
+        type: integer
+        description: Maximum number of maps to play on this match
+        example: 1
+      forceCut:
+        type: boolean
+        description: "Whether the Cut Round phase should be forced or not. If true, players will not be able to start Live Match before Cut Round"
+        example: true
+      map:
+        description: Game map to play for this match
+        allOf:
+          - $ref: "#/definitions/GameMap"
+      whitelist:
+        type: boolean
+        description: "Whether the match have to be SteamID-locked or not. If true, only the players registered on whitelistTeam1 and whitelistTeam2 will be able to connect to the game server, and they will be automatically placed on their own team"
+        example: true
+      whitelistTeam1:
+        type: string
+        description: "List of Steam IDs (Steam64 format) to whitelist on Team 1 (CTs), comma-separated"
+        example: "76561198026034196,76561198195605810"
+      whitelistTeam2:
+        type: string
+        description: "List of Steam IDs (Steam64 format) to whitelist on Team 2 (Ts), comma-separated"
+        example: "76561198135505173,76561198002626194"
+      team1:
+        type: string
+        description: Team 1 name (will begin on CT side)
+        example: Alpha Team
+      team2:
+        type: string
+        description: Team 2 name (will begin on T side)
+        example: Bravo Team
+      score1:
+        type: integer
+        description: Team 1 (CT) current score
+        example: 0
+      score2:
+        type: integer
+        description: Team 2 (T) current score
+        example: 0
+      switchedSide:
+        type: boolean
+        description: "Whether the teams have been switched or not (inverted when the !swap command is used, or when entering on a new side"
+        example: false
+      crWinner:
+        type: integer
+        description: "Cut Round winner, if a Cut Round was played. Does not take care of *switchedSide* parameter."
+        example: 1
+      team1Status:
+        type: string
+        description: Last status of Team 1
+        enum:
+          - null
+          - "!pause"
+          - "!stop"
+          - "!knife"
+          - "!live"
+        example: "!live"
+      team2Status:
+        type: string
+        description: Last status of Team 2
+        enum:
+          - null
+          - "!pause"
+          - "!stop"
+          - "!knife"
+          - "!live"
+        example: "!live"
+      pause:
+        type: integer
+        description: "Whether the match is currently paused, and which team paused it"
+        enum:
+          - null
+          - 1
+          - 2
+        example: null
+      overtime:
+        type: boolean
+        description: Enable overtime on this match
+        example: false
+      overtimeCount:
+        type: integer
+        description: Number of overtime phases that have been played. Used to calculate match end.
+        example: 0
+      status:
+        type: integer
+        description: |-
+          Match current status.
+
+          1 = Preparing
+
+          5 = Cut round 
+
+          6 = Warmup with cut round won by Team 1
+
+          7 = Warmup with cut round won by Team 2
+
+          10 = Warmup
+
+          15 = Playing side 1
+
+          20 = Playing side 2
+
+          30 = Playing overtime
+
+          35 = Playing overtime
+
+          40 = Finished, pending scores validations (*coming soon*)
+
+          50 = Finished
+
+          100 = Archived (the match will not appear on any future request)
+        enum:
+          - 1
+          - 5
+          - 6
+          - 7
+          - 10
+          - 15
+          - 20
+          - 30
+          - 35
+          - 40
+          - 50
+          - 100
