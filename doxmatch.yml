@@ -7,7 +7,7 @@ info:
     email: contact@doxmatch.net
   x-logo:
     url: ./assets/logo.png
-    backgroundColor: "#ffffff"
+    backgroundColor: "#263238"
 host: api.doxmatch.net
 basePath: /v2
 tags:
